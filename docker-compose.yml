@@ -1,0 +1,108 @@
+version: '3.8'
+volumes:
+    www:
+        driver: local
+        driver_opts:
+            type: none
+            device: ${PWD}/www
+            o: bind
+services:
+    db:
+        image: mariadb:10.4
+        ports:
+          - 3306:3306
+        volumes:
+            - "./data/db:/var/lib/mysql"
+            - "www:/var/www:delegated"
+            - "./db/custom.cnf:/etc/mysql/conf.d/custom.cnf"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        networks:
+            main:
+                aliases:
+                    - db
+    template:
+        build:
+            context: php8-fpm
+            args:
+                TIMEZONE: ${TIMEZONE}
+                WITH_XDEBUG: ${WITH_XDEBUG}
+        env_file:
+            - .env
+        working_dir: /var/www/TEMPLATE
+        networks:
+            main:
+                aliases:
+                    - TEMPLATE
+        volumes:
+            - www:/var/www:delegated
+        secrets:
+            - source: id_rsa
+    php-cli:
+        build:
+            context: php8-fpm
+            args:
+                TIMEZONE: ${TIMEZONE}
+                WITH_XDEBUG: ${WITH_XDEBUG}
+        volumes:
+            - www:/var/www:delegated
+            - ./install.sh:/var/install.sh:delegated
+            - ./update.sh:/var/update.sh:delegated
+            #- ./logs/symfony:/var/www/symfony/app/logs
+        secrets:
+          - source: id_rsa
+            # wait for docker-compose up to support file mode
+            # uid: 'XXX'
+            # gid: 'XXX'
+            # mode: 0XXX
+    nginx:
+        build: nginx
+        ports:
+            - 80:80
+        volumes:
+            - www:/var/www:delegated
+            - ./data/logs/nginx/:/var/log/nginx:delegated
+        networks:
+            main:
+                aliases:
+                    - TEMPLATE.local
+
+    mailer:
+        image: schickling/mailcatcher
+        ports:
+            - 1025
+            - 1080:1080
+        networks:
+            main:
+                aliases:
+                    - mailer
+
+#    redis:
+#        image: redis:alpine
+#        ports:
+#            - 6379:6379
+#        networks:
+#            main
+#                aliases:
+#                    - redis
+#    rabbitmq:
+#        image: rabbitmq:3.7.5-management
+#        hostname: app-rabbitmq
+#        ports:
+#            - 15672:15672
+#        volumes:
+#            - ./data/rabbitmq:/var/lib/rabbitmq/mnesia/rabbit@app-rabbitmq:cached
+#        environment:
+#            RABBITMQ_DEFAULT_USER: rabbitmq
+#            RABBITMQ_DEFAULT_PASS: rabbitmq
+#            RABBITMQ_DEFAULT_VHOST: /
+#        networks:
+#            main:
+#                aliases:
+#                    - rabbitmq
+networks:
+    main:
+
+secrets:
+    id_rsa:
+        file: ~/.ssh/id_rsa

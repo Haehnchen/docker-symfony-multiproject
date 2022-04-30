@@ -1,0 +1,1 @@
+winnfsd\winnfsd -log off %cd%\www /www
