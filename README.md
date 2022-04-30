@@ -156,12 +156,12 @@ To make this persisted you can also just copy `docker-compose.nfs.yml` to `docke
 
 ## FAQ
 
-* Permission problem? (docker: Got permission denied while trying to connect to the Docker daemon socket at)
+**Permission problem? (docker: Got permission denied while trying to connect to the Docker daemon socket at)**
 
 ```
 sudo groupadd docker
-sudo chmod 666 /var/run/docker.sock
 sudo usermod -aG docker $USER
+sudo chmod 666 /var/run/docker.sock
 # restart / relogin 
 ```
 
@@ -170,7 +170,7 @@ else:
  - https://docs.docker.com/engine/install/linux-postinstall/ 
  - See [this doc (Setting up Permission)](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)
 
-* How to config Xdebug?
+**How to config Xdebug?**
 
 Xdebug is configured out of the box!
 Just config your IDE to connect port  `9001` and id key `PHPSTORM`
