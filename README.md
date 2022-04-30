@@ -108,17 +108,15 @@ For Mac users it's important to not use the Docker provided by the Homebrew pack
 
 ## Updating
 
-    Update includes
-    
-     - checkout develop branch
-     - composer install
-     - build frontend
+Update includes
 
-    If you have a local bash use the script; else copy the line manually out of the file and run it:
-    
-    ```
-    make update
-    ```
+ - checkout develop branch
+ - composer install
+ - build frontend
+
+```
+make update
+```
         
 ## Optimizations
 
